@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>노래 장기자랑 심사 시스템 (확장)</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
+    h1, h2 { text-align: center; }
+    .team-block { background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .team-name { font-weight: bold; margin-bottom: 8px; }
+    .team-name input { font-size: 16px; padding: 5px; width: 100%; }
+    .judge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+    .judge-row label { flex: 1 0 48%; }
+    .judge-row input { width: 100%; padding: 5px; font-size: 16px; }
+    .total, .lock { font-weight: bold; margin-top: 5px; }
+    button { width: 100%; padding: 12px; font-size: 16px; margin: 10px 0; background-color: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .result-block { background: #fff; padding: 15px; border-radius: 10px; margin-top: 20px; }
+    ol { padding-left: 20px; }
+    @media print {
+      button, input, .export-section { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <h1>🎤 노래 장기자랑 심사 시스템</h1>
+
+  <div class="export-section">
+    <button onclick="calculateRankings()">🏆 등수 계산</button>
+    <button onclick="window.print()">🖨️ PDF로 저장 또는 인쇄</button>
+    <button onclick="exportToCSV()">📥 CSV로 내보내기</button>
+  </div>
+
+  <div id="teamsContainer"></div>
+
+  <div class="result-block">
+    <h2>📊 팀 순위</h2>
+    <ol id="rankingList"></ol>
+  </div>
+
+  <script>
+    const numTeams = 15;
+    const numJudges = 5;
+    const criteria = ["음정", "박자", "가사", "창의성", "관객반응"];
+    const teamsContainer = document.getElementById("teamsContainer");
+
+    for (let team = 1; team <= numTeams; team++) {
+      const block = document.createElement("div");
+      block.className = "team-block";
+      block.innerHTML = \`
+        <div class="team-name">팀 \${team} 이름: <input type="text" id="team-name-\${team}" placeholder="예: 별빛소년단"></div>
+      \`;
+
+      for (let judge = 1; judge <= numJudges; judge++) {
+        const judgeRow = document.createElement("div");
+        judgeRow.className = "judge-row";
+        judgeRow.innerHTML = \`<strong>심사위원 \${judge}</strong><br/>\`;
+        criteria.forEach(crit => {
+          const label = document.createElement("label");
+          label.innerHTML = \`\${crit} (20점): <input type="number" min="0" max="20"
+            data-team="\${team}" data-judge="\${judge}" data-crit="\${crit}" oninput="limitScore(this)">\`;
+          judgeRow.appendChild(label);
+        });
+        block.appendChild(judgeRow);
+      }
+
+      block.innerHTML += \`
+        <div class="total">총점: <span id="total-\${team}">0</span></div>
+        <button onclick="lockTeam(\${team})" id="lock-btn-\${team}">🔒 심사 완료</button>
+        <div class="lock" id="lock-msg-\${team}"></div>
+      \`;
+      teamsContainer.appendChild(block);
+    }
+
+    function limitScore(input) {
+      if (input.value > 20) input.value = 20;
+      if (input.value < 0) input.value = 0;
+    }
+
+    function calculateTeamTotal(team) {
+      const inputs = document.querySelectorAll(\`input[data-team='\${team}']\`);
+      let total = 0;
+      inputs.forEach(input => {
+        total += parseFloat(input.value || 0);
+      });
+      document.getElementById(\`total-\${team}\`).textContent = total;
+      return total;
+    }
+
+    function calculateRankings() {
+      const scores = [];
+      for (let team = 1; team <= numTeams; team++) {
+        const name = document.getElementById(\`team-name-\${team}\`).value || \`팀 \${team}\`;
+        const total = calculateTeamTotal(team);
+        scores.push({ name, total });
+      }
+      scores.sort((a, b) => b.total - a.total);
+
+      const list = document.getElementById("rankingList");
+      list.innerHTML = "";
+      scores.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = \`\${item.name} - 총점 \${item.total}점\`;
+        list.appendChild(li);
+      });
+    }
+
+    function lockTeam(team) {
+      const inputs = document.querySelectorAll(\`input[data-team='\${team}']\`);
+      inputs.forEach(input => input.disabled = true);
+      const nameInput = document.getElementById(\`team-name-\${team}\`);
+      nameInput.disabled = true;
+      document.getElementById(\`lock-msg-\${team}\`).textContent = "심사 완료되었습니다. 수정할 수 없습니다.";
+      document.getElementById(\`lock-btn-\${team}\`).disabled = true;
+    }
+
+    function exportToCSV() {
+      let csv = "팀 이름,총점\n";
+      for (let team = 1; team <= numTeams; team++) {
+        const name = document.getElementById(\`team-name-\${team}\`).value || \`팀 \${team}\`;
+        const total = document.getElementById(\`total-\${team}\`).textContent || "0";
+        csv += \`\${name},\${total}\n\`;
+      }
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "장기자랑_점수표.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
