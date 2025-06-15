@@ -1,2 +1,2 @@
 # talent-show-score
- HTML 장기자랑 심사 시스템 
+ HTML 기반 장기자랑 심사 시스템 
