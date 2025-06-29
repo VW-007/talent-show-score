@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>장기자랑 관리자 패널</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .setup-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            border: 2px solid #e1e8ed;
+        }
+        
+        .setup-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        
+        .input-group {
+            margin-bottom: 12px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+        
+        .setup-complete-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 20px auto 0;
+            width: 100%;
+        }
+        
+        .setup-complete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .control-panel {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .control-panel.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .team-selector {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .team-selector h2 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.3em;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .team-btn {
+            padding: 12px 8px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .team-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .team-btn.active {
+            background: #667eea;
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .team-btn.completed {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .current-team {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .current-team h2 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .action-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .start-btn {
+            background: linear-gradient(45deg, #00b894, #00a085);
+            color: white;
+        }
+        
+        .results-btn {
+            background: linear-gradient(45deg, #fdcb6e, #e17055);
+            color: white;
+        }
+        
+        .reset-btn {
+            background: #e17055;
+            color: white;
+            grid-column: 1 / -1;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .url-display {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #e1e8ed;
+        }
+        
+        .url-display h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .url-box {
+            background: white;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            word-break: break-all;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .status-display {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #e1e8ed;
+        }
+        
+        .judge-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .judge-status:last-child {
+            border-bottom: none;
+        }
+        
+        .judge-name {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .status-indicator {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-waiting {
+            background: #ffeaa7;
+            color: #d63031;
+        }
+        
+        .status-submitted {
+            background: #00b894;
+            color: white;
+        }
+        
+        @media (max-width: 480px) {
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 장기자랑 관리자</h1>
+            <p>심사 시스템 관리 패널</p>
+        </div>
+        
+        <div class="content">
+            <div class="setup-section" id="setupSection">
+                <h3>🎯 초기 설정</h3>
+                
+                <div class="input-group">
+                    <label>대회 제목</label>
+                    <input type="text" id="contestTitle" value="노래자랑 대회" placeholder="대회 제목을 입력하세요">
+                </div>
+                
+                <div class="input-group">
+                    <label>총 팀 수</label>
+                    <input type="number" id="totalTeams" value="15" min="1" max="50" placeholder="참가 팀 수">
+                </div>
+                
+                <div class="input-group">
+                    <label>심사위원 수</label>
+                    <input type="number" id="totalJudges" value="5" min="1" max="10" placeholder="심사위원 수">
+                </div>
+                
+                <button class="setup-complete-btn" onclick="completeSetup()">
+                    설정 완료 - 시작하기! 🚀
+                </button>
+            </div>
+            
+            <div class="control-panel" id="controlPanel">
+                <div class="team-selector">
+                    <h2>심사할 팀 선택</h2>
+                    <div class="team-grid" id="teamGrid">
+                        <!-- 팀 버튼들이 여기에 생성됩니다 -->
+                    </div>
+                </div>
+                
+                <div class="current-team" id="currentTeamDisplay" style="display: none;">
+                    <h2 id="currentTeamName">팀 선택 대기</h2>
+                    <p>현재 심사 중인 팀</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="action-btn start-btn" onclick="startJudging()" id="startBtn" disabled>
+                        심사 시작
+                    </button>
+                    <button class="action-btn results-btn" onclick="showResults()">
+                        결과 보기
+                    </button>
+                    <button class="action-btn reset-btn" onclick="resetSystem()">
+                        전체 초기화
+                    </button>
+                </div>
+                
+                <div class="url-display" id="urlDisplay" style="display: none;">
+                    <h4>심사위원 접속 링크</h4>
+                    <div class="url-box" id="judgeUrl">링크가 생성됩니다...</div>
+                    <button class="copy-btn" onclick="copyUrl()">링크 복사</button>
+                </div>
+                
+                <div class="status-display" id="statusDisplay" style="display: none;">
+                    <h4>심사 현황</h4>
+                    <div id="judgeStatusList">
+                        <!-- 심사위원별 상태가 여기에 표시됩니다 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let contestData = {
+            title: '',
+            totalTeams: 15,
+            totalJudges: 5,
+            currentTeam: null,
+            teams: {},
+            judges: {},
+            scores: {},
+            status: 'setup' // setup, judging, completed
+        };
+        
+        let currentTeamSelected = null;
+        
+        // Firebase 시뮬레이션 (실제로는 Firebase나 다른 실시간 DB 사용)
+        const DATABASE_URL = 'contest_data';
+        
+        function completeSetup() {
+            const title = document.getElementById('contestTitle').value.trim();
+            const teams = parseInt(document.getElementById('totalTeams').value);
+            const judges = parseInt(document.getElementById('totalJudges').value);
+            
+            if (!title || teams < 1 || judges < 1) {
+                alert('모든 필드를 올바르게 입력해주세요.');
+                return;
+            }
+            
+            contestData.title = title;
+            contestData.totalTeams = teams;
+            contestData.totalJudges = judges;
+            
+            // 팀 데이터 초기화
+            for (let i = 1; i <= teams; i++) {
+                contestData.teams[i] = {
+                    name: `${i}팀`,
+                    completed: false
+                };
+            }
+            
+            // 심사위원 데이터 초기화
+            for (let i = 1; i <= judges; i++) {
+                contestData.judges[i] = {
+                    name: `심사위원 ${i}`,
+                    connected: false
+                };
+            }
+            
+            saveToStorage();
+            
+            document.getElementById('setupSection').style.display = 'none';
+            document.getElementById('controlPanel').classList.add('active');
+            
+            createTeamButtons();
+            createJudgeStatus();
+        }
+        
+        function createTeamButtons() {
+            const grid = document.getElementById('teamGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 1; i <= contestData.totalTeams; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'team-btn';
+                btn.textContent = contestData.teams[i].name;
+                btn.onclick = () => selectTeam(i);
+                
+                if (contestData.teams[i].completed) {
+                    btn.classList.add('completed');
+                }
+                
+                grid.appendChild(btn);
+            }
+        }
+        
+        function selectTeam(teamNum) {
+            currentTeamSelected = teamNum;
+            contestData.currentTeam = teamNum;
+            
+            // 버튼 상태 업데이트
+            document.querySelectorAll('.team-btn').forEach((btn, index) => {
+                btn.classList.remove('active');
+                if (index + 1 === teamNum) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // 현재 팀 표시
+            document.getElementById('currentTeamDisplay').style.display = 'block';
+            document.getElementById('currentTeamName').textContent = contestData.teams[teamNum].name;
+            document.getElementById('startBtn').disabled = false;
+            
+            saveToStorage();
+        }
+        
+        function startJudging() {
+            if (!currentTeamSelected) {
+                alert('먼저 팀을 선택해주세요.');
+                return;
+            }
+            
+            contestData.status = 'judging';
+            contestData.currentTeam = currentTeamSelected;
+            
+            // 점수 초기화
+            contestData.scores[currentTeamSelected] = {};
+            
+            saveToStorage();
+            
+            // URL 표시
+            const baseUrl = window.location.origin + window.location.pathname.replace('admin.html', '');
+            const judgeUrl = `${baseUrl}judge.html?team=${currentTeamSelected}&contest=${encodeURIComponent(contestData.title)}`;
+            
+            document.getElementById('judgeUrl').textContent = judgeUrl;
+            document.getElementById('urlDisplay').style.display = 'block';
+            document.getElementById('statusDisplay').style.display = 'block';
+            
+            updateJudgeStatus();
+            
+            // 주기적으로 상태 업데이트
+            if (window.statusInterval) {
+                clearInterval(window.statusInterval);
+            }
+            window.statusInterval = setInterval(updateJudgeStatus, 2000);
+        }
+        
+        function createJudgeStatus() {
+            const container = document.getElementById('judgeStatusList');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= contestData.totalJudges; i++) {
+                const statusDiv = document.createElement('div');
+                statusDiv.className = 'judge-status';
+                statusDiv.innerHTML = `
+                    <span class="judge-name">${contestData.judges[i].name}</span>
+                    <span class="status-indicator status-waiting" id="status_${i}">대기중</span>
+                `;
+                container.appendChild(statusDiv);
+            }
+        }
+        
+        function updateJudgeStatus() {
+            const storedData = loadFromStorage();
+            if (!storedData || !storedData.scores || !storedData.currentTeam) return;
+            
+            const currentScores = storedData.scores[storedData.currentTeam] || {};
+            
+            for (let i = 1; i <= contestData.totalJudges; i++) {
+                const statusElement = document.getElementById(`status_${i}`);
+                if (statusElement) {
+                    if (currentScores[i]) {
+                        statusElement.textContent = '제출완료';
+                        statusElement.className = 'status-indicator status-submitted';
+                    } else {
+                        statusElement.textContent = '대기중';
+                        statusElement.className = 'status-indicator status-waiting';
+                    }
+                }
+            }
+            
+            // 모든 심사위원이 제출했는지 확인
+            const submittedCount = Object.keys(currentScores).length;
+            if (submittedCount === contestData.totalJudges) {
+                contestData.teams[contestData.currentTeam].completed = true;
+                saveToStorage();
+                createTeamButtons();
+                
+                if (window.statusInterval) {
+                    clearInterval(window.statusInterval);
+                }
+                
+                alert(`${contestData.teams[contestData.currentTeam].name} 심사가 완료되었습니다!`);
+            }
+        }
+        
+        function showResults() {
+            window.open('results.html', '_blank');
+        }
+        
+        function copyUrl() {
+            const url = document.getElementById('judgeUrl').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('링크가 복사되었습니다!');
+            }).catch(() => {
+                // 복사 실패 시 선택하여 복사하도록 안내
+                const textArea = document.createElement('textarea');
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('링크가 복사되었습니다!');
+            });
+        }
+        
+        function resetSystem() {
+            if (confirm('정말로 모든 데이터를 초기화하시겠습니까?')) {
+                localStorage.removeItem(DATABASE_URL);
+                location.reload();
+            }
+        }
+        
+        function saveToStorage() {
+            localStorage.setItem(DATABASE_URL, JSON.stringify(contestData));
+        }
+        
+        function loadFromStorage() {
+            const data = localStorage.getItem(DATABASE_URL);
+            return data ? JSON.parse(data) : null;
+        }
+        
+        // 페이지 로드시 기존 데이터 확인
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedData = loadFromStorage();
+            if (savedData) {
+                contestData = savedData;
+                
+                // UI 복원
+                document.getElementById('contestTitle').value = contestData.title;
+                document.getElementById('totalTeams').value = contestData.totalTeams;
+                document.getElementById('totalJudges').value = contestData.totalJudges;
+                
+                if (contestData.status !== 'setup') {
+                    document.getElementById('setupSection').style.display = 'none';
+                    document.getElementById('controlPanel').classList.add('active');
+                    createTeamButtons();
+                    createJudgeStatus();
+                    
+                    if (contestData.currentTeam) {
+                        selectTeam(contestData.currentTeam);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

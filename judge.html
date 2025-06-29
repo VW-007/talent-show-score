@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>모바일 장기자랑 심사 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        /* 헤더 스타일 */
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+        
+        /* 로그인 섹션 */
+        .login-section {
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .login-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .judge-select {
+            margin-bottom: 20px;
+        }
+        
+        .judge-select label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .judge-select select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+        }
+        
+        .password-input {
+            margin-bottom: 20px;
+        }
+        
+        .password-input label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .password-input input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        
+        .login-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* 팀 선택 섹션 */
+        .team-selector {
+            padding: 20px;
+            display: none;
+        }
+        
+        .team-selector h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.3em;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .team-btn {
+            padding: 15px 10px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .team-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .team-btn.active {
+            background: #667eea;
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .team-btn.completed {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        /* 점수 입력 섹션 */
+        .scoring-section {
+            padding: 20px;
+            display: none;
+        }
+        
+        .current-team {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .current-team h2 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        
+        .current-judge {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .criteria-list {
+            margin-bottom: 20px;
+        }
+        
+        .criteria-item {
+            background: #f8f9ff;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .criteria-item label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .score-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .score-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .score-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+        
+        .score-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .score-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+            min-width: 35px;
+        }
+        
+        .score-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .total-score {
+            background: linear-gradient(45deg, #ffeaa7, #fdcb6e);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 20px;
+            color: #2d3436;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(45deg, #00b894, #00a085);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 184, 148, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            background: #ddd;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .back-btn:hover {
+            background: #5a6268;
+        }
+        
+        /* 결과 섹션 */
+        .results-section {
+            padding: 20px;
+            display: none;
+        }
+        
+        .results-section h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.3em;
+        }
+        
+        .team-result {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .team-result.rank-1 {
+            border-left-color: #ffd700;
+            background: linear-gradient(135deg, #fff9c4, #fff59d);
+            border: 2px solid #ffd700;
+            border-left: 4px solid #ffd700;
+        }
+        
+        .team-result.rank-2 {
+            border-left-color: #c0c0c0;
+            background: linear-gradient(135deg, #f8f8f8, #e8e8e8);
+            border: 2px solid #c0c0c0;
+            border-left: 4px solid #c0c0c0;
+        }
+        
+        .team-result.rank-3 {
+            border-left-color: #cd7f32;
+            background: linear-gradient(135deg, #ffcc80, #ffb74d);
+            border: 2px solid #cd7f32;
+            border-left: 4px solid #cd7f32;
+        }
+        
+        .team-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .rank-medal {
+            font-size: 1.5em;
+        }
+        
+        .team-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .team-score {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .logout-btn {
+            background: #e17055;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            font-size: 16px;
+        }
+        
+        .logout-btn:hover {
+            background: #d63031;
+        }
+        
+        /* 모바일 최적화 */
+        @media (max-width: 480px) {
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .score-buttons {
+                justify-content: center;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .criteria-item {
+                padding: 12px;
+            }
+            
+            .score-input-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        /* 진행 상황 표시 */
+        .progress-bar {
+            background: #e1e8ed;
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 모바일 장기자랑 심사 🎵</h1>
+            <p>노래자랑 대회 - 15팀 참가</p>
+        </div>
+        
+        <!-- 로그인 섹션 -->
+        <div class="login-section" id="loginSection">
+            <h2>심사위원 로그인</h2>
+            <div class="judge-select">
+                <label for="judgeSelect">심사위원을 선택하세요:</label>
+                <select id="judgeSelect">
+                    <option value="">선택하세요</option>
+                    <option value="judge1">심사위원 1</option>
+                    <option value="judge2">심사위원 2</option>
+                    <option value="judge3">심사위원 3</option>
+                    <option value="judge4">심사위원 4</option>
+                    <option value="judge5">심사위원 5</option>
+                </select>
+            </div>
+            <div class="password-input">
+                <label for="passwordInput">비밀번호:</label>
+                <input type="password" id="passwordInput" placeholder="비밀번호를 입력하세요">
+            </div>
+            <button class="login-btn" onclick="login()">로그인</button>
+        </div>
+        
+        <!-- 팀 선택 섹션 -->
+        <div class="team-selector" id="teamSelector">
+            <h2>심사할 팀을 선택하세요</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">진행 상황: 0/15</div>
+            <div class="team-grid" id="teamGrid">
+                <!-- 팀 버튼들이 여기에 생성됩니다 -->
+            </div>
+            <button class="logout-btn" onclick="logout()">로그아웃</button>
+        </div>
+        
+        <!-- 점수 입력 섹션 -->
+        <div class="scoring-section" id="scoringSection">
+            <div class="current-team" id="currentTeam">
+                <h2 id="teamName">팀 1</h2>
+                <p>현재 심사 중인 팀</p>
+            </div>
+            
+            <div class="current-judge" id="currentJudge">
+                심사위원 1
+            </div>
+            
+            <div class="criteria-list" id="criteriaList">
+                <!-- 평가 항목들이 여기에 생성됩니다 -->
+            </div>
+            
+            <div class="total-score" id="totalScore">
+                총점: 0점
+            </div>
+            
+            <button class="submit-btn" id="submitBtn" onclick="submitScore()">
+                점수 제출
+            </button>
+            <button class="back-btn" onclick="backToTeamSelection()">
+                팀 선택으로 돌아가기
+            </button>
+        </div>
+        
+        <!-- 결과 섹션 -->
+        <div class="results-section" id="resultsSection">
+            <h3>🏆 현재 순위</h3>
+            <div id="rankingList">
+                <!-- 순위가 여기에 표시됩니다 -->
+            </div>
+            <button class="back-btn" onclick="backToTeamSelection()">
+                팀 선택으로 돌아가기
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 상수 정의 - 평가 항목 및 최대 점수
+        const CRITERIA = [
+            { name: '음정', max: 20 },
+            { name: '박자', max: 20 },
+            { name: '가사', max: 20 },
+            { name: '창의성', max: 20 },
+            { name: '관객반응', max: 20 }
+        ];
+        
+        // 심사위원 정보 (실제 환경에서는 더 안전한 인증 방식을 사용해야 함)
+        const JUDGES = {
+            'judge1': { name: '심사위원 1', password: '1234' },
+            'judge2': { name: '심사위원 2', password: '1234' },
+            'judge3': { name: '심사위원 3', password: '1234' },
+            'judge4': { name: '심사위원 4', password: '1234' },
+            'judge5': { name: '심사위원 5', password: '1234' }
+        };
+        
+        const TOTAL_TEAMS = 15;
+        
+        // 전역 변수들
+        let currentJudge = null;
+        let currentTeam = null;
+        let allScores = {}; // 모든 점수를 저장하는 객체
+        let judgeScores = {}; // 현재 심사위원의 점수들
+        
+        // 초기화 함수
+        function init() {
+            // 로컬 스토리지에서 기존 점수 불러오기 (실제로는 서버에서 가져와야 함)
+            loadScoresFromStorage();
+            createTeamButtons();
+            createCriteriaList();
+        }
+        
+        // 로그인 함수
+        function login() {
+            const judgeId = document.getElementById('judgeSelect').value;
+            const password = document.getElementById('passwordInput').value;
+            
+            // 심사위원 선택 및 비밀번호 확인
+            if (!judgeId) {
+                alert('심사위원을 선택해주세요.');
+                return;
+            }
+            
+            if (!password) {
+                alert('비밀번호를 입력해주세요.');
+                return;
+            }
+            
+            // 비밀번호 검증
+            if (JUDGES[judgeId] && JUDGES[judgeId].password === password) {
+                currentJudge = judgeId;
+                
+                // 화면 전환
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('teamSelector').style.display = 'block';
+                
+                // 심사위원별 점수 초기화
+                if (!judgeScores[currentJudge]) {
+                    judgeScores[currentJudge] = {};
+                }
+                
+                updateTeamButtons();
+                updateProgress();
+            } else {
+                alert('올바르지 않은 비밀번호입니다.');
+            }
+        }
+        
+        // 로그아웃 함수
+        function logout() {
+            currentJudge = null;
+            currentTeam = null;
+            
+            // 입력 필드 초기화
+            document.getElementById('judgeSelect').value = '';
+            document.getElementById('passwordInput').value = '';
+            
+            // 화면 전환
+            document.getElementById('teamSelector').style.display = 'none';
+            document.getElementById('scoringSection').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+        }
+        
+        // 팀 버튼 생성
+        function createTeamButtons() {
+            const container = document.getElementById('teamGrid');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= TOTAL_TEAMS; i++) {
+                const button = document.createElement('button');
+                button.className = 'team-btn';
+                button.textContent = `${i}팀`;
+                button.onclick = () => selectTeam(i);
+                button.id = `teamBtn_${i}`;
+                container.appendChild(button);
+            }
+        }
+        
+        // 팀 버튼 상태 업데이트
+        function updateTeamButtons() {
+            if (!currentJudge) return;
+            
+            for (let i = 1; i <= TOTAL_TEAMS; i++) {
+                const button = document.getElementById(`teamBtn_${i}`);
+                button.classList.remove('completed', 'active');
+                
+                // 해당 심사위원이 해당 팀을 이미 심사했는지 확인
+                if (judgeScores[currentJudge] && judgeScores[currentJudge][i]) {
+                    button.classList.add('completed');
+                }
+            }
+        }
+        
+        // 진행 상황 업데이트
+        function updateProgress() {
+            if (!currentJudge) return;
+            
+            const completedTeams = judgeScores[currentJudge] ? Object.keys(judgeScores[currentJudge]).length : 0;
+            const progress = (completedTeams / TOTAL_TEAMS) * 100;
+            
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `진행 상황: ${completedTeams}/${TOTAL_TEAMS}`;
+        }
+        
+        // 팀 선택
+        function selectTeam(teamNum) {
+            currentTeam = teamNum;
+            
+            // 팀 이름 업데이트
+            document.getElementById('teamName').textContent = `${teamNum}팀`;
+            document.getElementById('currentJudge').textContent = JUDGES[currentJudge].name;
+            
+            // 기존 점수가 있다면 불러오기
+            loadTeamScores(teamNum);
+            
+            // 화면 전환
+            document.getElementById('teamSelector').style.display = 'none';
+            document.getElementById('scoringSection').style.display = 'block';
+            document.getElementById('resultsSection').style.display = 'none';
+        }
+        
+        // 평가 항목 리스트 생성
+        function createCriteriaList() {
+            const container = document.getElementById('criteriaList');
+            container.innerHTML = '';
+            
+            CRITERIA.forEach((criteria, index) => {
+                const criteriaDiv = document.createElement('div');
+                criteriaDiv.className = 'criteria-item';
+                criteriaDiv.innerHTML = `
+                    <label>${criteria.name} (최대 ${criteria.max}점)</label>
+                    <div class="score-input-container">
+                        <input type="number" 
+                               class="score-input" 
+                               id="score_${index}" 
+                               min="0" 
+                               max="${criteria.max}" 
+                               value="0"
+                               onchange="updateTotalScore()"
+                               oninput="updateTotalScore()">
+                    </div>
+                    <div class="score-buttons">
+                        <button class="score-btn" onclick="setScore(${index}, 0)">0</button>
+                        <button class="score-btn" onclick="setScore(${index}, 5)">5</button>
+                        <button class="score-btn" onclick="setScore(${index}, 10)">10</button>
+                        <button class="score-btn" onclick="setScore(${index}, 15)">15</button>
+                        <button class="score-btn" onclick="setScore(${index}, 20)">20</button>
+                    </div>
+                `;
+                container.appendChild(criteriaDiv);
+            });
+        }
+        
+        // 특정 점수 설정
+        function setScore(criteriaIndex, score) {
+            document.getElementById(`score_${criteriaIndex}`).value = score;
+            updateTotalScore();
+        }
+        
+        // 총점 업데이트
+        function updateTotalScore() {
+            let total = 0;
+            CRITERIA.forEach((_, index) => {
+                const input = document.getElementById(`score_${index}`);
+                const value = parseInt(input.value) || 0;
+                // 최대값 초과 방지
+                if (value > CRITERIA[index].max) {
+                    input.value = CRITERIA[index].max;
+                }
+                total += parseInt(input.value) || 0;
+            });
+            
+            document.getElementById('totalScore').textContent = `총점: ${total}점`;
+        }
+        
+        // 팀 점수 불러오기
+        function loadTeamScores(teamNum) {
+            if (judgeScores[currentJudge] && judgeScores[currentJudge][teamNum]) {
+                const scores = judgeScores[currentJudge][teamNum];
+                CRITERIA.forEach((_, index) => {
+                    document.getElementById(`score_${index}`).value = scores[index] || 0;
+                });
+            } else {
+                // 점수 초기화
+                CRITERIA.forEach((_, index) => {
+                    document.getElementById(`score_${index}`).value = 0;
+                });
+            }
+            updateTotalScore();
+        }
+        
+        // 점수 제출
+        function submitScore() {
+            if (!currentJudge || !currentTeam) return;
+            
+            // 모든 점수가 입력되었는지 확인 (0점도 유효한 점수)
+            let allScoresEntered = true;
+            const scores = [];
+            
+            CRITERIA.forEach((_, index) => {
+                const input = document.getElementById(`score_${index}`);
+                const value = parseInt(input.value);
+                if (isNaN(value) || value < 0) {
+                    allScoresEntered = false;
+                    return;
+                }
+                scores.push(value);
+            });
+            
+            if (!allScoresEntered) {
+                alert('모든 항목에 올바른 점수를 입력해주세요.');
+                return;
+            }
+            
+            // 점수 저장
+            if (!judgeScores[currentJudge]) {
+                judgeScores[currentJudge] = {};
+            }
+            judgeScores[currentJudge][currentTeam] = scores;
+            
+            // 로컬 스토리지에 저장 (실제로는 서버에 전송해야 함)
+            saveScoresToStorage();
+            
+            // 전체 점수 계산 및 결과 표시
+            calculateAndShowResults();
+            
+            alert('점수가 성공적으로 제출되었습니다!');
+        }
+        
+        // 전체 결과 계산 및 표시
+        function calculateAndShowResults() {
+            const teamTotals = {};
+            
+            // 각 팀별 총점 계산
+            for (let team = 1; team <= TOTAL_TEAMS; team++) {
+                let teamTotal = 0;
+                let judgeCount = 0;
+                
+                // 모든 심사위원의 점수 합산
+                Object.keys(judgeScores).forEach(judge => {
+                    if (judgeScores[judge][team]) {
+                        const judgeTotal = judgeScores[judge][team].reduce((sum, score) => sum + score, 0);
+                        teamTotal += judgeTotal;
+                        judgeCount++;
+                    }
+                });
+                
+                if (judgeCount > 0) {
+                    teamTotals[team] = {
+                        total: teamTotal,
+                        judgeCount: judgeCount,
+                        teamName: `${team}팀`
+                    };
+                }
+            }
+            
+            // 순위 정렬
+            const sortedTeams = Object.keys(teamTotals)
+                .map(teamNum => ({
+                    teamNum: parseInt(teamNum),
+                    ...teamTotals[teamNum]
+                }))
+                .sort((a, b) => b.total - a.total);
+            
+            // 결과 표시
+            displayResults(sortedTeams);
+            
+            // 화면 전환
+            document.getElementById('scoringSection').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'block';
+        }
+        
+        // 결과 표시
+        function displayResults(sortedTeams) {
+            const container = document.getElementById('rankingList');
+            container.innerHTML = '';
+            
+            sortedTeams.forEach((team, index) => {
+                const rank = index + 1;
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `team-result ${rank <= 3 ? `rank-${rank}` : ''}`;
+                
+                let rankEmoji = '';
+                if (rank === 1) rankEmoji = '🥇';
+                else if (rank === 2) rankEmoji = '🥈';
+                else if (rank === 3) rankEmoji = '🥉';
+                else rankEmoji = `${rank}위`;
+                
+                resultDiv.innerHTML = `
+                    <div class="team-info">
+                        <div class="rank-medal">${rankEmoji}</div>
+                        <div class="team-name">${team.teamName}</div>
+                    </div>
+                    <div class="team-score">${team.total}점</div>
+                `;
+                
+                container.appendChild(resultDiv);
+            });
+        }
+        
+        // 팀 선택 화
